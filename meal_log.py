@@ -8,7 +8,7 @@ import time
 
 from selenium.webdriver.common.keys import Keys
 
-browser = webdriver.Chrome("G:\google_driver\chromedriver.exe")
+browser = webdriver.Chrome("/home/atarasov/Documents/chromedriver")
 url = "https://app-us.meallogger.com/#/login"
 browser.get(url)
 
@@ -23,25 +23,25 @@ submitButton.click()
 
 browser.get("https://app-us.meallogger.com/#/timeline/home")
 time.sleep(3)
-# innerHTML = browser.execute_script("return document.body.innerHTML")
-# page_html = browser.page_source
-# page_soup = soup(page_html, "html.parser")
-# b = browser.find_element_by_class_name("event-datetime-title-container")
-# b.click()
-# time.sleep(0.5)
-# name = browser.find_element_by_class_name("user-name")
+innerHTML = browser.execute_script("return document.body.innerHTML")
+page_html = browser.page_source
+page_soup = soup(page_html, "html.parser")
+b = browser.find_element_by_class_name("event-datetime-title-container")
+b.click()
+time.sleep(0.5)
+name = browser.find_element_by_class_name("user-name")
 
 
 
-# #browser.switch_to_active_element()
-# pop_up = soup(browser.page_source, "html.parser")
-#
-# p1 = re.compile(r'<span>(.+?)<\/span><\/span><\/div><\/div><div class="event-text">')
-# p2 = re.compile(r'src=("https:\/\/images.meallogger.com\/images.+?")')
-#
-# print(p1.findall(str(pop_up)))
-# print(p2.findall(str(pop_up)))
-#
+#browser.switch_to_active_element()
+pop_up = soup(browser.page_source, "html.parser")
+
+p1 = re.compile(r'<span>(.+?)<\/span><\/span><\/div><\/div><div class="event-text">')
+p2 = re.compile(r'src=("https:\/\/images.meallogger.com\/images.+?")')
+
+print(p1.findall(str(pop_up)))
+print(p2.findall(str(pop_up)))
+
 # def download_images(dirname, url):
 #         response = requests.get(url, stream=True)
 #         save_image_to_file(response, dirname, 1)
