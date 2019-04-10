@@ -1,5 +1,6 @@
 .idea/
-ScalaScrap/.idea/
 *.iml
 **/.project
-
+ScalaScrap/target/
+ScalaScrap/project/
+ScalaScrap/.idea/
