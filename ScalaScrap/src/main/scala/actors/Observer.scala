@@ -1,5 +1,7 @@
 package actors
 
-class Observer {
+import akka.actor.Actor
+
+abstract class Observer extends Actor{
 
 }
