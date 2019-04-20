@@ -2,7 +2,7 @@ package MainRunner.Scrappers
 
 import java.net.URL
 
-import akka.actor.ActorSystem
+import akka.actor.{Actor, ActorSystem}
 import com.typesafe.scalalogging.LazyLogging
 
 
@@ -14,7 +14,6 @@ object Scrapper {
     }
   }
 }
-case class T(t:String)
-trait Scrapper[T <: ScrapperType] extends LazyLogging{
+trait Scrapper[T <: ScrapperType] extends LazyLogging with Actor{
   def parse(url: URL) : String
 }

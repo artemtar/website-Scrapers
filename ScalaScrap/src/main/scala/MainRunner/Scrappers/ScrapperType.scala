@@ -9,5 +9,7 @@ object ScrapperType {
 }
 
 sealed trait ScrapperType
+
 trait GlassDoor extends ScrapperType
+
 case object GlassDoor extends ScrapperType

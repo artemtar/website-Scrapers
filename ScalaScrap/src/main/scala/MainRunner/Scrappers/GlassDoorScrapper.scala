@@ -11,13 +11,13 @@ object GlassDoorScrapper{
   case class WrongRequest(msg: String)
 }
 
-case class GlassDoorScrapper(system: ActorSystem) extends Scrapper[GlassDoor] with Actor{
+case class GlassDoorScrapper(system: ActorSystem) extends Scrapper[GlassDoor] {
 
   import GlassDoorScrapper._
 
   override def parse(url: URL): String = {
     val link: String = url.toString
-    logger.info(s"Connecting to $link")
+    logger.info(s"In a scrapper: connecting to $link")
 
     val soup = Jsoup.connect(link)
       .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
@@ -29,6 +29,7 @@ case class GlassDoorScrapper(system: ActorSystem) extends Scrapper[GlassDoor] wi
   override def receive: Receive = {
     case Scrap(link) => {
      val result = parse(new URL(link))
+      logger.info(result + "in scrapper")
       sender() ! FinishedScrap(result)
     }
     case _ => WrongRequest(s"can't proses ${this.toString}")
