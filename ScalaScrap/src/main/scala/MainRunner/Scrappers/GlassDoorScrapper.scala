@@ -5,6 +5,7 @@ import java.net.URL
 import MainRunner.Scrap
 import akka.actor.{Actor, ActorSystem}
 import org.jsoup.Jsoup
+import spray.json._
 
 object GlassDoorScrapper{
   case class FinishedScrap(result: String)
@@ -20,15 +21,20 @@ case class GlassDoorScrapper(system: ActorSystem) extends Scrapper[GlassDoor] {
     logger.info(s"In a scrapper: connecting to $link")
 
     val soup = Jsoup.connect(link)
-      .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-      .referrer("http://www.google.com")
-      .get()
-    val a = soup.selectFirst("script")
+              .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+              .referrer("http://www.google.com")
+              .get()
+              .selectFirst("script")
+
     val pattern = raw"\\[(.*?)\\]".r
-    val b = a.toString.replace(" ", "").replace("\n", " ").replace("\t", "")
-    val c = b.substring(b.indexOf("["))
-    val d = c.substring(0, c.indexOfSlice(";   window.getGdGlobals"))
-    println(d)
+    val pipeB = soup.toString
+                    .replace(" ", "")
+                    .replace("\n", " ")
+                    .replace("\t", "")
+    val pipeC = pipeB.substring(pipeB.indexOf("[")).replaceAll("'", s""""""")
+    val pipeD = pipeC.substring(0, pipeC.indexOfSlice(", \"test\":")).stripMargin('[') + "}"
+    println(pipeD)
+    val jsonAst = pipeD.parseJson
     "why you not work"
   }
 
