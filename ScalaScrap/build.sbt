@@ -15,3 +15,5 @@ libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "net.ruippeixotog" %% "scala-scraper" % "2.1.0"
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.5"
+
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.9"

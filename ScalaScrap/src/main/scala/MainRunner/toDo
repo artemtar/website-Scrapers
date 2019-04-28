@@ -1,0 +1,13 @@
+- Add indexer
+- Add writer
+- Add time counter
+- Start elastic serarch counter
+
+
+
+
+Later:
+- Add kafka topic
+- Add kafka elastic connector
+- Hbase support
+- Add kafka hbase connector
