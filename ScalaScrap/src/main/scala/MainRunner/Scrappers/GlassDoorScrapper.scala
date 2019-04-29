@@ -38,8 +38,10 @@ case class GlassDoorScrapper(system: ActorSystem) extends Scrapper[GlassDoor] {
     val info = soup.selectFirst("script").toString
     val description = cleanDiscription(soup.getElementsByClass("jobDescriptionContent").toString)
     val entry: Entry = jsonToContainer(info, description, url)
-    println(entry)
-
+    import play.api.libs.json._
+    val jsonStringOutput = Json.toJson(entry).toString()
+    reflect.io.File("/home/atarasov/test/out").appendAll(jsonStringOutput)
+println("------------------")
 
 
     "why you not work"
@@ -66,8 +68,8 @@ case class GlassDoorScrapper(system: ActorSystem) extends Scrapper[GlassDoor] {
                            )
     Entry( employer,
            job,
-           description,
-           link.toString )
+           link.toString,
+           description )
   }
 
   def cleanDiscription(discrString: String) = {

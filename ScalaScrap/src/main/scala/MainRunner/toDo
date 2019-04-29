@@ -11,3 +11,4 @@ Later:
 - Add kafka elastic connector
 - Hbase support
 - Add kafka hbase connector
+- May be direct upload to logstash

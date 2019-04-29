@@ -4,3 +4,6 @@
 ScalaScrap/target/
 ScalaScrap/project/
 ScalaScrap/.idea/
+composer.phar
+app/vendor/
+app/storage/cache/*
