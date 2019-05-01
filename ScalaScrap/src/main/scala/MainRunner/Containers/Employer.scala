@@ -17,5 +17,12 @@ object Employer{
       "location" -> employer.location
     )
   }
+    def toString(employer: Employer) = {
+      s"""name : ${employer.name.toString},
+         | id : ${employer.id.toString},
+         | industry : ${employer.industry.toString},
+         | location : ${employer.location.toString}""".stripMargin
+    }
+
 }
 

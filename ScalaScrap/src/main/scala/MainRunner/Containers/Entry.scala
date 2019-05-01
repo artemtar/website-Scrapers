@@ -18,4 +18,8 @@ implicit val entryWriter = new Writes[Entry] {
     "description" -> entry.description
     )
   }
+
+  def toString(entry: Entry): String = {
+    s"""{hello, employer: {${Employer.toString(entry.employer)}}"""
+  }
 }

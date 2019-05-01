@@ -17,3 +17,4 @@ libraryDependencies += "net.ruippeixotog" %% "scala-scraper" % "2.1.0"
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.5"
 
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.9"
+libraryDependencies += "com.google.code.gson" % "gson" % "1.7.1"

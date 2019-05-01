@@ -1,7 +1,6 @@
 package MainRunner.Scrappers
 
 import java.net.URL
-
 import MainRunner.Containers._
 import MainRunner.Scrap
 import akka.actor.ActorSystem
@@ -39,8 +38,11 @@ case class GlassDoorScrapper(system: ActorSystem) extends Scrapper[GlassDoor] {
     val description = cleanDiscription(soup.getElementsByClass("jobDescriptionContent").toString)
     val entry: Entry = jsonToContainer(info, description, url)
     import play.api.libs.json._
-    val jsonStringOutput = Json.toJson(entry).toString()
-    reflect.io.File("/home/atarasov/test/out").appendAll(jsonStringOutput)
+    val jsonStringOutput = Json.toJson(entry).toString
+    reflect.io.File("/home/atara/test/out").appendAll('\n' + jsonStringOutput)
+//    val fw = new FileWriter("/home/atara/test/out", true) ;
+//    fw.write('\n' + jsonStringOutput) ;
+//    fw.close()
 println("------------------")
 
 
@@ -56,15 +58,15 @@ println("------------------")
     val pipeD = pipeC.substring(0, pipeC.indexOfSlice(", \"test\":")).stripMargin('[') + "}"
     val jobInfoJson : JsValue = Json.parse(pipeD)
 
-    val job: Job = Job( ( jobInfoJson \ "job" \ "jobTitle" ).toString,
-                        ( jobInfoJson \ "job" \ "country" ).toString,
-                        ( jobInfoJson \ "job" \ "city" ).toString,
-                        ( jobInfoJson \ "job" \ "id" ).toString
+    val job: Job = Job( ( jobInfoJson \ "job" \ "jobTitle" ).get.toString.replace("\"", ""),
+                        ( jobInfoJson \ "job" \ "country" ).get.toString.replace("\"", ""),
+                        ( jobInfoJson \ "job" \ "city" ).get.toString.replace("\"", ""),
+                        ( jobInfoJson \ "job" \ "id" ).get.toString.replace("\"", "")
     )
-    val employer = Employer(( jobInfoJson \ "employer" \ "name" ).toString,
-                            ( jobInfoJson \ "employer" \ "industry" ).toString,
-                            ( jobInfoJson \ "employer" \ "id" ).toString,
-                            ( jobInfoJson \ "employer" \ "location" ).toString
+    val employer = Employer(( jobInfoJson \ "employer" \ "name" ).get.toString.replace("\"", ""),
+                            ( jobInfoJson \ "employer" \ "industry" ).get.toString.replace("\"", ""),
+                            ( jobInfoJson \ "employer" \ "id" ).get.toString.replace("\"", ""),
+                            ( jobInfoJson \ "employer" \ "location" ).get.toString.replace("\"", "")
                            )
     Entry( employer,
            job,
@@ -78,7 +80,9 @@ println("------------------")
     val pLi = "<(\\/?)li>".r
     val pUl = "<(\\/?)ul>".r
     val pStrong = "<(\\/?)strong>".r
-    val pBr = "<( ?)br>".r
+    val pBr = "<(\\/?)br>".r
+    val pP = "<(\\/?)p>".r
+    val pB = "<(\\/?)b>".r
 
     discrString.toString.replace("<div class=\"jobDescriptionContent desc module pad noMargBot\"", "")
                         .split(" ").toSeq.map(pDiv.replaceAllIn(_, ""))
@@ -86,6 +90,8 @@ println("------------------")
                         .map(pUl.replaceAllIn(_, ""))
                         .map(pStrong.replaceAllIn(_, ""))
                         .map(pBr.replaceAllIn(_, ""))
+                        .map(pP.replaceAllIn(_, ""))
+                        .map(pB.replaceAllIn(_, ""))
                         .filter(_ != " ")
                         .filter(_ != "<br>").mkString(" ")
   }

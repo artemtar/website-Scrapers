@@ -17,12 +17,6 @@ import scala.language.postfixOps
 case class Crawl(websites: List[(URL, String)])
 
 object Main extends App with LazyLogging{
-//  val gds = Crawler.getCrawler("GlassDoor")
-//  val l = gds.parse(new URL("https://www.glassdoor.ca/Job/canada-data-engineer-intern-jobs-SRCH_IL.0,6_IN3_KO7,27.htm"))
-// val links: Seq[String] = l.getOrElse(Seq())
-//  val scrapper = Scrapper.getScrapper("GlassDoor")
-//  scrapper.parse(new URL(links(1)))
-  ///Implement arg parse
   val webSitesToScrap = List(
   (new URL("https://www.glassdoor.ca/Job/data-engineer-jobs-SRCH_KO0,13.htm"), "GlassDoor")
 )
