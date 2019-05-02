@@ -1,16 +1,15 @@
 package MainRunner.Crawlers
 
 import java.net.URL
-import MainRunner.{Scrap, Supervisor}
+import MainRunner.{Scrap}
 import MainRunner.Scrappers.{FailedToScrap, FinishedScrap, Scrapper, WrongRequest}
 import org.jsoup.Jsoup
 import akka.pattern.ask
 import akka.util.Timeout
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Future}
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.util.Failure
 
 
 case class GlassDoorCrawler(system: ActorSystem, writer: ActorRef, supervisor: ActorRef) extends Crawler[GlassDoor] with Actor {
