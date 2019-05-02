@@ -12,7 +12,6 @@ services:
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx512m -Xms512m"
-
     networks:
       - elk
 
@@ -45,6 +44,5 @@ services:
       - elasticsearch
 
 networks:
-
   elk:
     driver: bridge

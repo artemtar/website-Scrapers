@@ -1,52 +1,44 @@
 package MainRunner.Scrappers
 
 import java.net.URL
+
 import MainRunner.Containers._
 import MainRunner.Scrap
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import org.jsoup.Jsoup
 import play.api.libs.json._
 
-object GlassDoorScrapper{
-  case class FinishedScrap(result: String)
-  case class WrongRequest(msg: String)
-}
+import scala.util.Try
 
-case class GlassDoorScrapper(system: ActorSystem) extends Scrapper[GlassDoor] {
 
-  import GlassDoorScrapper._
+case class GlassDoorScrapper(writer: ActorRef, system: ActorSystem) extends Scrapper[GlassDoor] {
 
   override def receive: Receive = {
-    case Scrap(link) => {
-      val result = parse(new URL(link))
-      logger.info(result + "in scrapper")
-      sender() ! FinishedScrap(result)
+    case Scrap(link: String) => {
+    val responce = parse(new URL(link))
+    sender() ! responce
     }
-    case _ => WrongRequest(s"can't proses ${this.toString}")
+    case _ => sender() ! WrongRequest(s"can't proses ${this.toString}")
   }
 
-  override def parse(url: URL): String = {
+  override def parse(url: URL) = {
     val link: String = url.toString
     logger.info(s"In a scrapper: connecting to $link")
 
-    val soup = Jsoup.connect(link)
-              .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-              .referrer("http://www.google.com")
-              .get()
+    try {
+      val soup = Jsoup.connect(link)
+        .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+        .referrer("http://www.google.com")
+        .get()
 
     val info = soup.selectFirst("script").toString
     val description = cleanDiscription(soup.getElementsByClass("jobDescriptionContent").toString)
     val entry: Entry = jsonToContainer(info, description, url)
-    import play.api.libs.json._
-    val jsonStringOutput = Json.toJson(entry).toString
-    reflect.io.File("/home/atara/test/out").appendAll('\n' + jsonStringOutput)
-//    val fw = new FileWriter("/home/atara/test/out", true) ;
-//    fw.write('\n' + jsonStringOutput) ;
-//    fw.close()
-println("------------------")
-
-
-    "why you not work"
+    writer ! ResultObject(entry)
+    FinishedScrap(url.toString)
+    }catch {
+      case e => FailedToScrap(e.toString, link)
+    }
   }
 
   def jsonToContainer(info: String, description: String, link: URL) = {

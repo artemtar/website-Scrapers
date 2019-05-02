@@ -1,35 +1,35 @@
 package MainRunner
 
-import MainRunner.Crawlers.GlassDoorCrawler.FailedToScrap
-import MainRunner.Crawlers.{Crawler, WebSite}
-import MainRunner.Scrappers.GlassDoorScrapper.FinishedScrap
+import MainRunner.Crawlers.{CrawlFinished, Crawler, WebSite}
 import akka.actor.{Actor, ActorSystem, Props}
 import com.typesafe.scalalogging.LazyLogging
 
 case class Scrap(link: String)
+
 case class Supervisor(system: ActorSystem) extends Actor with LazyLogging {
+  var webSitesToCrawl = 0
+  var finishedCrawling = 0
+  val writer = system.actorOf(Props(Writer(system, "/home/atara/test/out")))
+
   override def receive: Receive = {
     case Crawl(websites) => {
       websites.foreach {
         case (website, websiteType) => {
           logger.info(s"Dispatching logger for $websiteType")
-          val crawler = system.actorOf(Props(Crawler.getCrawler(websiteType, system, self)))
+          val crawler = system.actorOf(Props(Crawler.getCrawler(websiteType, system, writer, self)))
           crawler ! WebSite(website)
+          webSitesToCrawl += 1
         }
         case _ => logger.info("Link is empty, check supplied links")
       }
     }
-    case FinishedScrap(result) => {
-      logger.info(result)
-      logger.info("did not runnnnnnn---------------------?")
+    case CrawlFinished(website) => {
+      logger.info(s"finished for $website")
+      if(finishedCrawling == webSitesToCrawl){
+        system.terminate()
+      }
     }
-    case FailedToScrap(sometimes) => logger.info(s"---------------Failed to scrap: stack trace $sometimes")
     case _ => logger.info("something does not work properly")
-
-//      sender ! crawlers
-//      for (elem <- crawlers) {
-//        system.actorOf(Props())
-//      }
     }
   }
 

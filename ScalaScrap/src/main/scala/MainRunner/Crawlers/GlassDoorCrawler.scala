@@ -1,38 +1,70 @@
 package MainRunner.Crawlers
 
 import java.net.URL
-
-import MainRunner.Crawlers.GlassDoorCrawler.CrawlFinished
 import MainRunner.{Scrap, Supervisor}
-import MainRunner.Scrappers.{GlassDoorScrapper, Scrapper, ScrapperType}
-import MainRunner.Scrappers.Scrapper._
-import akka.actor.Status.Success
+import MainRunner.Scrappers.{FailedToScrap, FinishedScrap, Scrapper, WrongRequest}
 import org.jsoup.Jsoup
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
-import akka.pattern.pipe
-
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Failure
 
-object GlassDoorCrawler{
-  case class CrawlFinished(site: String)
-  case class FailedToScrap(e: Any)
-}
 
-case class GlassDoorCrawler(system: ActorSystem, supervisor: ActorRef) extends Crawler[GlassDoor] with Actor {
-  import MainRunner.Scrappers.GlassDoorScrapper._
-  import GlassDoorCrawler._
+case class GlassDoorCrawler(system: ActorSystem, writer: ActorRef, supervisor: ActorRef) extends Crawler[GlassDoor] with Actor {
+  var websitesToscrap = 0
+  var finishedScrap = 0
+  var failedScraps = scala.collection.mutable.Map[String, Int]()
 
-  override def parse(url:URL): Option[Seq[String]] = {
-    val linksToParse = getLinks(url)
-    linksToParse
+  override def receive: Receive = {
+    case WebSite(website) => {
+      logger.info(s"Starting to parse $website")
+      var links = parse(website).get
+      links = Seq(links.head)
+      if (links.isEmpty) {
+        sender ! FailToCrawl("Website list is empty")
+      } else {
+        logger.info(s"Links to parse from ${website}:")
+        logger.info(s"${links}")
+        createScrapers(links, website, Nil)
+      }
+    }
+    case FinishedScrap(website) => {
+      logger.info(s"Finished scrap of $website")
+      finishedScrap += 1
+      if (websitesToscrap == finishedScrap){
+        supervisor ! FailToCrawl("Glassdoor")
+      }
+    }
+    case FailedToScrap(error: Any, link: String) => {
+      logger.error(s"Couldnot connect to $link, stack trace : $error")
+      if (failedScraps.contains(link)){
+        failedScraps(link) += 1
+      } else {
+        failedScraps += link -> 0
+      }
+      val checkIfEnoughRequests = failedScraps(link)
+//      Theree is a magic number
+      if (checkIfEnoughRequests <= 3) {
+        logger.info(s"Sending another requesto to $link")
+        val scrapper = Props(Scrapper.getScrapper("GlassDoor", writer, system))
+        val scrapperActor = system.actorOf(scrapper)
+        implicit val timeout = Timeout(60 seconds)
+        scrapperActor ? Scrap(link)
+      } else {
+        finishedScrap += 1
+        if (websitesToscrap == finishedScrap){
+          supervisor ! FailToCrawl("Glassdoor")
+        }
+      }
+    }
+    case WrongRequest(request) => {logger.error(s"""Wrong parsing request to $request""")}
+    case _ => logger.info("Something is wrong in receive for Glassdoor Crawler")
   }
-  def getLinks(url: URL): Option[Seq[String]] = {
+
+  override def parse(url: URL): Option[Seq[String]] = {
     val link: String = url.toString
     logger.info(s"In crawler: connecting to $link")
 
@@ -52,49 +84,23 @@ case class GlassDoorCrawler(system: ActorSystem, supervisor: ActorRef) extends C
 
     logger.info(s"Glassdoor links to parse ${jobLinks.size}")
 
-    val toReturn = jobLinks.size match{
+    jobLinks.size match{
       case 0 => None
       case _ => Some(jobLinks)
     }
-    toReturn
-  }
-
-  override def receive: Receive = {
-    case WebSite(website) => {
-      logger.info(s"Starting to parse $website")
-      var links = parse(website).get
-links = Seq(links.head)
-      if (links.isEmpty) {
-        sender ! FailToCrawl("Website list is empty")
-      } else {
-        logger.info(s"Links to parse from ${website}")
-        logger.info(s"${links}")
-        scrapLinks(createScrapers(links, website, Nil))
-      }
-    }
-    case FinishedScrap(result) => {logger.info(result + "is scrappper ----------")}
-//      logger.info("hello")}
-    case _ => logger.info("looks like it works")
-
   }
 
   def createScrapers (links: Seq[String], webSite: URL, ls: List[Future[Any]]): List[Future[Any]] = {
     links match {
       case Nil =>  ls
       case head :: tail =>
-        logger.info(s"prosessiong $head")
-        val scrapper = Props(Scrapper.getScrapper("GlassDoor", system))
+        logger.info(s"Scheduling scrapper for $head")
+        val scrapper = Props(Scrapper.getScrapper("GlassDoor", writer, system))
         val scrapperActor = system.actorOf(scrapper)
         implicit val timeout = Timeout(60 seconds)
         ls :+ scrapperActor ? Scrap(head)
-        logger.info(s"interseting ---------- $ls")
+        websitesToscrap += 1
         createScrapers(tail, webSite, ls)
     }
-
   }
-
-  def scrapLinks (result: List[Future[Any]] ) = {
-    logger.info(s"insite of scraplinkjs $result")
-      result.foreach(f => logger.info(s"hello here $f"))
-    }
 }
