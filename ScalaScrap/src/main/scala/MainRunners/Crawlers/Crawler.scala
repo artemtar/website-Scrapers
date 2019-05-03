@@ -1,15 +1,13 @@
 package MainRunner.Crawlers
 
 import java.net.URL
-
-import akka.actor.TypedActor.Supervisor
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import com.typesafe.scalalogging.LazyLogging
-import scalaz.Writer
 
 case class FailToCrawl(msg: String)
 case class WebSite(webSite: URL)
 case class Finished()
+case class WebsiteProcessFailure(link: String, crawlerType: String, error: String)
 
 object Crawler {
     def getCrawler(scType: String, system: ActorSystem, writer: ActorRef, supervisor: ActorRef): Crawler[_ <: CrawlerType] ={

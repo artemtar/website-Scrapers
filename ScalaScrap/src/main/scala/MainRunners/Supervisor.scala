@@ -1,6 +1,6 @@
 package MainRunner
 
-import MainRunner.Crawlers.{CrawlFinished, Crawler, WebSite}
+import MainRunner.Crawlers.{CrawlFinished, Crawler, WebSite, WebsiteProcessFailure}
 import akka.actor.{Actor, ActorSystem, Props}
 import com.typesafe.scalalogging.LazyLogging
 
@@ -29,6 +29,10 @@ case class Supervisor(system: ActorSystem) extends Actor with LazyLogging {
         system.terminate()
       }
     }
+    case WebsiteProcessFailure(link: String, crawlerType: String, error: String) => {
+      logger.error(s"Failed to process website $link in $crawlerType, stack trace: $error")
+    }
+
     case _ => logger.info("something does not work properly")
     }
   }

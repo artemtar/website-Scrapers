@@ -1,5 +1,6 @@
 package MainRunner.Containers
 
+import MainRunner.Writer
 import play.api.libs.json.{Json, Writes}
 
 case class Entry( employer: Employer,
@@ -15,7 +16,8 @@ implicit val entryWriter = new Writes[Entry] {
     "employer" -> Json.toJson(entry.employer),
     "job" -> Json.toJson(entry.job),
     "link" -> entry.link,
-    "description" -> entry.description
+    "description" -> entry.description,
+    "checksum" -> Writer.md5HashString(entry.description)
     )
   }
 
