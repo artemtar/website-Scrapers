@@ -1,9 +1,9 @@
-package MainRunner.Crawlers
+package MainRunners.Crawlers
 
 import java.net.URL
 
-import MainRunner.Scrap
-import MainRunner.Scrappers.{FailedToScrap, FinishedScrap, Scrapper, WrongRequest}
+import MainRunners.Scrap
+import MainRunners.Scrappers.{FailedToScrap, FinishedScrap, Scrapper, WrongRequest}
 import org.jsoup.Jsoup
 import akka.pattern.ask
 import akka.util.Timeout
@@ -24,9 +24,11 @@ case class GlassDoorCrawler(system: ActorSystem, writer: ActorRef, supervisor: A
       logger.info(s"Starting to parse $website")
       var links = parse(website).get
       if(links.head == "Terminate"){
+        logger.info(s"Terminating craller, no links in search form")
         self ! PoisonPill
       }
-      links = Seq(links.head)
+//      left for debug
+//      links = Seq(links.head)
       if (links.isEmpty) {
         sender ! FailToCrawl("Website list is empty")
       } else {
@@ -100,8 +102,8 @@ case class GlassDoorCrawler(system: ActorSystem, writer: ActorRef, supervisor: A
 
   def createScrapers (links: Seq[String], webSite: URL, ls: List[Future[Any]]): List[Future[Any]] = {
     links match {
-      case Nil =>  ls
-      case head :: tail =>
+      case Seq() => ls
+      case Seq(head, tail @ _*) => {
         logger.info(s"Scheduling scrapper for $head")
         val scrapper = Props(Scrapper.getScrapper("GlassDoor", writer, system))
         val scrapperActor = system.actorOf(scrapper)
@@ -109,6 +111,7 @@ case class GlassDoorCrawler(system: ActorSystem, writer: ActorRef, supervisor: A
         ls :+ scrapperActor ? Scrap(head)
         websitesToscrap += 1
         createScrapers(tail, webSite, ls)
+      }
     }
   }
 }

@@ -1,8 +1,8 @@
-package MainRunner.Scrappers
+package MainRunners.Scrappers
 
 import java.net.URL
 
-import MainRunner.Containers.Entry
+import MainRunners.Containers.Entry
 import akka.actor.{Actor, ActorRef, ActorSystem}
 import com.typesafe.scalalogging.LazyLogging
 

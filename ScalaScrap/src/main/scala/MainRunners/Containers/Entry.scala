@@ -1,6 +1,6 @@
-package MainRunner.Containers
+package MainRunners.Containers
 
-import MainRunner.Writer
+import MainRunners.Writer
 import play.api.libs.json.{Json, Writes}
 
 case class Entry( employer: Employer,

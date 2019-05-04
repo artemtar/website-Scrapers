@@ -1,4 +1,4 @@
-package MainRunner.Crawlers
+package MainRunners.Crawlers
 
 object CrawlerType {
   def apply(scrapperType: String): CrawlerType = {

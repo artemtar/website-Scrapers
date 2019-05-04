@@ -1,9 +1,9 @@
-package MainRunner
+package MainRunners
 
 import java.net.URL
 
-import MainRunner.Crawlers.Crawler
-import MainRunner.Scrappers.Scrapper
+import MainRunners.Crawlers.Crawler
+import MainRunners.Scrappers.Scrapper
 import akka.actor.{ActorSystem, PoisonPill, Props}
 import akka.util.Timeout
 import akka.pattern.ask

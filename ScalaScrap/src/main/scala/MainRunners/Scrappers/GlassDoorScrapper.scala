@@ -1,22 +1,18 @@
-package MainRunner.Scrappers
+package MainRunners.Scrappers
 
 import java.net.URL
-
-import MainRunner.Containers._
-import MainRunner.Scrap
+import MainRunners.Containers._
+import MainRunners.Scrap
 import akka.actor.{ActorRef, ActorSystem}
 import org.jsoup.Jsoup
 import play.api.libs.json._
-
-import scala.util.Try
-
 
 case class GlassDoorScrapper(writer: ActorRef, system: ActorSystem) extends Scrapper[GlassDoor] {
 
   override def receive: Receive = {
     case Scrap(link: String) => {
-    val responce = parse(new URL(link))
-    sender() ! responce
+    val response = parse(new URL(link))
+    sender() ! response
     }
     case _ => sender() ! WrongRequest(s"can't proses ${this.toString}")
   }

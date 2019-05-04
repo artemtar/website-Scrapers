@@ -1,4 +1,4 @@
-package MainRunner.Crawlers
+package MainRunners.Crawlers
 
 import java.net.URL
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}

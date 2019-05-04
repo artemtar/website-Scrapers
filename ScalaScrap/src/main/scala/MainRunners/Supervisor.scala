@@ -1,6 +1,6 @@
-package MainRunner
+package MainRunners
 
-import MainRunner.Crawlers.{CrawlFinished, Crawler, WebSite, WebsiteProcessFailure}
+import MainRunners.Crawlers.{CrawlFinished, Crawler, WebSite, WebsiteProcessFailure}
 import akka.actor.{Actor, ActorSystem, Props}
 import com.typesafe.scalalogging.LazyLogging
 
@@ -9,7 +9,7 @@ case class Scrap(link: String)
 case class Supervisor(system: ActorSystem) extends Actor with LazyLogging {
   var webSitesToCrawl = 0
   var finishedCrawling = 0
-  val writer = system.actorOf(Props(Writer(system, "/home/atara/test/out")))
+  val writer = system.actorOf(Props(Writer(system, "/home/atara/test/")))
 
   override def receive: Receive = {
     case Crawl(websites) => {

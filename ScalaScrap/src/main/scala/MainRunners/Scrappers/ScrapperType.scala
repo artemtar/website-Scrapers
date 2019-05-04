@@ -1,4 +1,4 @@
-package MainRunner.Scrappers
+package MainRunners.Scrappers
 
 object ScrapperType {
   def apply(scType: String): ScrapperType ={
