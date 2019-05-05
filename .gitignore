@@ -3,6 +3,7 @@
 **/.project
 ScalaScrap/target/
 ScalaScrap/project/
+ScalaScrap/app/
 ScalaScrap/.idea/
 composer.phar
 app/vendor/
